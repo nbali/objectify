@@ -63,7 +63,7 @@ class Round {
 			Result<T> result = new ResultCache<T>() {
 				@Override
 				@SuppressWarnings("unchecked")
-				public T nowUncached() {
+				protected T nowUncached() {
 					// Because clients could conceivably get() in the middle of our operations (see LoadCollectionRefsTest.specialListWorks()),
 					// we need to check for early execution. This will perform poorly, but at least it will work.
 					//assert Round.this.isExecuted();
@@ -167,9 +167,9 @@ class Round {
 		} else {
 			final Result<Map<com.google.appengine.api.datastore.Key, Entity>> fetched = loadEngine.fetch(fetch);
 
-			return new Result<Map<com.google.appengine.api.datastore.Key, Entity>>() {
+			return new ResultCache<Map<com.google.appengine.api.datastore.Key, Entity>>() {
 				@Override
-				public Map<com.google.appengine.api.datastore.Key, Entity> now() {
+				protected Map<com.google.appengine.api.datastore.Key, Entity> nowUncached() {
 					combined.putAll(fetched.now());
 					return combined;
 				}
