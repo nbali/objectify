@@ -17,7 +17,7 @@ abstract public class ResultTranslator<F, T> extends ResultCache<T>
 	protected abstract T translate(F from);
 
 	@Override
-	public T nowUncached() {
+	protected final T nowUncached() {
 		return translate(from);
 	}
 

@@ -183,6 +183,9 @@ public class LoaderImpl<L extends Loader> extends Queryable<Object> implements L
 		for (Object keyish: values)
 			keys.add((Key<E>)ofy.factory().keys().anythingToKey(keyish));
 
+		if (keys.isEmpty())
+			return Maps.newLinkedHashMap();
+
 		LoadEngine engine = createLoadEngine();
 
 		final Map<Key<E>, Result<E>> results = new LinkedHashMap<>();
@@ -194,9 +197,9 @@ public class LoaderImpl<L extends Loader> extends Queryable<Object> implements L
 		// Now asynchronously translate into a normal-looking map. We must be careful to exclude results with
 		// null (missing) values because that is the contract established by DatastoreService.get().
 		// We use the ResultProxy and create a new map because the performance of filtered views is questionable.
-		return ResultProxy.create(Map.class, new ResultCache<Map<Key<E>, E>>() {
+		return ResultProxy.createMap(new ResultCache<Map<Key<E>, E>>() {
 			@Override
-			public Map<Key<E>, E> nowUncached() {
+			protected Map<Key<E>, E> nowUncached() {
 				return
 					Maps.newLinkedHashMap(
 						Maps.filterValues(

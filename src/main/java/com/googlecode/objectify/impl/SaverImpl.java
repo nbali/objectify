@@ -1,10 +1,13 @@
 package com.googlecode.objectify.impl;
 
 import com.google.appengine.api.datastore.Entity;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Result;
 import com.googlecode.objectify.cmd.Saver;
 import com.googlecode.objectify.impl.translate.SaveContext;
+import com.googlecode.objectify.util.ResultNow;
 import com.googlecode.objectify.util.ResultWrapper;
 
 import java.util.Arrays;
@@ -57,6 +60,9 @@ public class SaverImpl implements Saver
 	 */
 	@Override
 	public <E> Result<Map<Key<E>, E>> entities(final Iterable<E> entities) {
+		if (Iterables.isEmpty(entities))
+			return new ResultNow<Map<Key<E>, E>>(Maps.<Key<E>, E> newLinkedHashMap());
+
 		return ofy.createWriteEngine().<E>save(entities);
 	}
 

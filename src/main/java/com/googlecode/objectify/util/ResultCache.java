@@ -19,7 +19,7 @@ abstract public class ResultCache<T> implements Result<T>, Serializable
 	protected abstract T nowUncached();
 
 	/** */
-	protected boolean isExecuted() {
+	protected final boolean isExecuted() {
 		return cached;
 	}
 

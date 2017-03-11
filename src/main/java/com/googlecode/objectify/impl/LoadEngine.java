@@ -131,7 +131,7 @@ public class LoadEngine
 
 			/** */
 			@Override
-			public Map<Key<?>, Object> nowUncached() {
+			protected Map<Key<?>, Object> nowUncached() {
 				Map<Key<?>, Object> result = new HashMap<>(raw.now().size() * 2);
 
 				ctx = new LoadContext(LoadEngine.this);

@@ -1,41 +1,57 @@
 package com.googlecode.objectify.util;
 
+import com.google.common.collect.ForwardingList;
+import com.google.common.collect.ForwardingMap;
 import com.googlecode.objectify.Result;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.util.List;
+import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 
 /**
- * A dynamic proxy that wraps a Result<?> value.  For example, if you had a Result<List<String>>, the
+ * A utility class that wraps a Result<?> value. For example, if you had a Result<List<String>>, the
  * proxy would implement List<String> and call through to the inner object.
  */
-public class ResultProxy<T> implements InvocationHandler, Serializable
+public class ResultProxy<T>
 {
-	/**
-	 * Create a ResultProxy for the given interface.
-	 */
-	@SuppressWarnings("unchecked")
-	public static <S> S create(Class<? super S> interf, Result<S> result) {
-		return (S)Proxy.newProxyInstance(result.getClass().getClassLoader(), new Class[] { interf }, new ResultProxy<>(result));
+	public static <K, V> Map<K, V> createMap(final Result<Map<K, V>> result) {
+		return new ResultProxyMap<K, V>(result);
 	}
 
-	Result<T> result;
-
-	private ResultProxy(Result<T> result) {
-		this.result = result;
+	public static <E> List<E> createList(final Result<List<E>> result) {
+		return new ResultProxyList<E>(result);
 	}
 
-	@Override
-	public Object invoke(Object obj, Method meth, Object[] params) throws Throwable {
-		return meth.invoke(result.now(), params);
+	@RequiredArgsConstructor
+	private static class ResultProxyList<E> extends ForwardingList<E> implements Serializable {
+
+		private final Result<List<E>> result;
+
+		@Override
+		protected List<E> delegate() {
+			return result.now();
+		}
+
+		private Object writeReplace() throws ObjectStreamException {
+			return delegate();
+		}
 	}
-	
-	private Object writeReplace() throws ObjectStreamException {
-        return new NowProxy<>(result.now());
-    }
-	
+
+	@RequiredArgsConstructor
+	private static class ResultProxyMap<K, V> extends ForwardingMap<K, V> implements Serializable {
+
+		private final Result<Map<K, V>> result;
+
+		@Override
+		protected Map<K, V> delegate() {
+			return result.now();
+		}
+
+		private Object writeReplace() throws ObjectStreamException {
+			return delegate();
+		}
+	}
 }
